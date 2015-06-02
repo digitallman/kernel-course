@@ -1,0 +1,66 @@
+From e208d30529dcaff8da098f2d85d2bd288c23026d Mon Sep 17 00:00:00 2001
+From: Anatoly St <you@example.com>
+Date: Sat, 23 May 2015 20:22:07 +0300
+Subject: [PATCH] udemy: basic syscall implementation
+
+---
+ arch/x86/syscalls/syscall_64.tbl |  3 +++
+ kernel/Makefile                  |  3 +++
+ kernel/udemy/Makefile            |  2 ++
+ kernel/udemy/syscall-example.c   | 13 +++++++++++++
+ 4 files changed, 21 insertions(+)
+ create mode 100644 kernel/udemy/Makefile
+ create mode 100644 kernel/udemy/syscall-example.c
+
+diff --git a/arch/x86/syscalls/syscall_64.tbl b/arch/x86/syscalls/syscall_64.tbl
+index ec255a1..40b2b19 100644
+--- a/arch/x86/syscalls/syscall_64.tbl
++++ b/arch/x86/syscalls/syscall_64.tbl
+@@ -361,3 +361,6 @@
+ 542	x32	getsockopt		compat_sys_getsockopt
+ 543	x32	io_setup		compat_sys_io_setup
+ 544	x32	io_submit		compat_sys_io_submit
++
++# Custom system call
++545     64      printk_int              sys_printk_int
+diff --git a/kernel/Makefile b/kernel/Makefile
+index f2a8b62..73b3d4c 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -221,3 +221,6 @@ x509.genkey:
+ 	@echo >>x509.genkey "subjectKeyIdentifier=hash"
+ 	@echo >>x509.genkey "authorityKeyIdentifier=keyid"
+ endif
++
++obj-y += udemy/
++
+diff --git a/kernel/udemy/Makefile b/kernel/udemy/Makefile
+new file mode 100644
+index 0000000..2223a00
+--- /dev/null
++++ b/kernel/udemy/Makefile
+@@ -0,0 +1,2 @@
++obj-y += syscall-example.o
++
+diff --git a/kernel/udemy/syscall-example.c b/kernel/udemy/syscall-example.c
+new file mode 100644
+index 0000000..0b4802d
+--- /dev/null
++++ b/kernel/udemy/syscall-example.c
+@@ -0,0 +1,13 @@
++#include <linux/syscalls.h>
++
++SYSCALL_DEFINE1(printk_int, int, val)
++{
++	int ret = 0;
++
++	if (val >= 0)
++		printk(KERN_INFO "%s: value = %d\n", __func__, val);
++	else
++		ret = -EINVAL;
++
++	return ret;
++}
+-- 
+2.1.0
+
